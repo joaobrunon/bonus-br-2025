@@ -30,6 +30,16 @@
         <select id="ure"><option value="">Todas as UREs</option></select>
       </label>
       <label class="sel">
+        <span>Bônus SAEB</span>
+        <select id="saeb">
+          <option value="">Todas</option>
+          <option value="sim">Recebe SAEB</option>
+          <option value="int">Recebe SAEB integral (0,50)</option>
+          <option value="parc">Recebe SAEB parcial</option>
+          <option value="nao">Não recebe SAEB</option>
+        </select>
+      </label>
+      <label class="sel">
         <span>Ordenar</span>
         <select id="sort">
           <option value="nome">Nome (A–Z)</option>
@@ -38,7 +48,8 @@
         </select>
       </label>
     </div>
-    <div class="chips" role="radiogroup" aria-label="Situação">
+    <div class="chips" role="radiogroup" aria-label="Situação do ICM final">
+      <span class="chips-label">ICM final:</span>
       <button class="chip on" data-st="" role="radio" aria-checked="true">Todas</button>
       <button class="chip" data-st="diam" role="radio" aria-checked="false"><i class="dot diam"></i>Diamante (100%)</button>
       <button class="chip" data-st="parc" role="radio" aria-checked="false"><i class="dot parc"></i>Parcial</button>
@@ -53,6 +64,7 @@
   <section class="notes">
     <h2>Como ler</h2>
     <ul>
+      <li><strong>Bônus SAEB</strong>: a escola recebe a parcela SAEB quando o ICM‑SAEB é maior que zero. Com 0,50 recebe a parcela integral; abaixo disso, proporcional. O ICM‑SAEB fica zerado quando a nota não evoluiu nem atingiu o piso, ou quando a escola não cumpriu os gatilhos de frequência e participação.</li>
       <li><strong>ICM da escola</strong> = ICM‑SARESP/Provão (até 0,50) + ICM‑SAEB (até 0,50). Com 1,00 a escola fica no patamar <strong>Diamante</strong>.</li>
       <li>Em cada avaliação vale o maior entre o Índice de Cumprimento (IC, evolução até a meta Ouro) e o Índice de Qualidade (IQ, nota acima do piso). Esse valor só conta se os <strong>gatilhos</strong> forem cumpridos: frequência (IFA) e participação (TPS ≥ 80%). Sem gatilho, o componente é zerado.</li>
       <li>33 escolas sem universo SAEB são apuradas só pelo SARESP, com metas Ouro e Diamante próprias.</li>

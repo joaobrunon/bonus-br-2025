@@ -4,7 +4,7 @@
   const PAGE = 60;
   const $ = (id) => document.getElementById(id);
   const els = {
-    q: $("q"), ure: $("ure"), sort: $("sort"), list: $("list"), count: $("count"),
+    q: $("q"), ure: $("ure"), sort: $("sort"), saeb: $("saeb"), list: $("list"), count: $("count"),
     more: $("more"), stats: $("stats"), dlg: $("dlg"), body: $("dlg-body"),
   };
   const chips = [...document.querySelectorAll(".chip")];
@@ -22,6 +22,24 @@
   const statusOf = (icm) => (icm >= 1 ? "diam" : icm > 0 ? "parc" : "zero");
   const LABEL = { diam: "Diamante", parc: "Parcial", zero: "Não atingiu" };
 
+  // Situação da parcela SAEB: "int" integral (0,50), "parc" parcial, "nao" zero, "na" escola só SARESP
+  const saebOf = (s) => (s.base !== "SARESP/SAEB" ? "na" : s.icmSaeb >= 0.5 ? "int" : s.icmSaeb > 0 ? "parc" : "nao");
+  const pctOf = (v, max) => Math.round((v / max) * 100);
+
+  function compPill(label, v, max, st) {
+    if (st === "na") return `<span class="pill na">${label}: não se aplica</span>`;
+    if (v > 0) {
+      const how = v >= max ? "integral" : `${pctOf(v, max)}% do máximo`;
+      return `<span class="pill ${v >= max ? "yes" : "part"}">✓ ${label}: recebe · ${how}</span>`;
+    }
+    return `<span class="pill no">✗ ${label}: não recebe</span>`;
+  }
+
+  function pills(s) {
+    const srspMax = s.base === "SARESP" ? 1 : 0.5;
+    return `<span class="pills">${compPill("SAEB", s.icmSaeb, 0.5, s._saeb)}${compPill("SARESP", s.icmSrsp, srspMax, "")}</span>`;
+  }
+
   function badge(s) {
     const st = statusOf(s.icm);
     return `<span class="badge ${st}"><b>${Math.round(s.icm * 100)}%</b><small>${LABEL[st]}</small></span>`;
@@ -30,12 +48,20 @@
   function stats() {
     const c = { diam: 0, parc: 0, zero: 0 };
     schools.forEach((s) => c[s._st]++);
-    const seduc = ures.SEDUC;
+    const sb = { int: 0, parc: 0, nao: 0, na: 0 };
+    schools.forEach((s) => sb[s._saeb]++);
+    const universe = sb.int + sb.parc + sb.nao;
     els.stats.innerHTML = [
-      `<div class="stat"><b>${seduc ? Math.round(seduc.icm * 100) + "%" : "—"}</b><span>IACM da SEDUC</span></div>`,
+      `<p class="stats-sub first">Bônus SAEB (2ª etapa, resultado desta resolução)</p>`,
+      `<div class="stat saeb"><b>${(sb.int + sb.parc).toLocaleString("pt-BR")}</b><span>recebem bônus SAEB (de ${universe.toLocaleString("pt-BR")})</span></div>`,
+      `<div class="stat saeb-int"><b>${sb.int.toLocaleString("pt-BR")}</b><span>SAEB integral (0,50)</span></div>`,
+      `<div class="stat saeb-no"><b>${sb.nao.toLocaleString("pt-BR")}</b><span>não recebem SAEB</span></div>`,
+      `<div class="stat"><b>${ures.SEDUC ? fmt(ures.SEDUC.icmSaeb) : "—"}</b><span>ICM‑SAEB da SEDUC</span></div>`,
+      `<p class="stats-sub">ICM final (SARESP + SAEB)</p>`,
       `<div class="stat diam"><b>${c.diam.toLocaleString("pt-BR")}</b><span>Diamante (ICM 1,00)</span></div>`,
       `<div class="stat parc"><b>${c.parc.toLocaleString("pt-BR")}</b><span>Parcial (0 &lt; ICM &lt; 1)</span></div>`,
       `<div class="stat zero"><b>${c.zero.toLocaleString("pt-BR")}</b><span>Não atingiram (ICM 0)</span></div>`,
+      `<div class="stat"><b>${ures.SEDUC ? Math.round(ures.SEDUC.icm * 100) + "%" : "—"}</b><span>IACM da SEDUC</span></div>`,
     ].join("");
   }
 
@@ -47,6 +73,9 @@
     filtered = schools.filter((s) => {
       if (ure && s.ure !== ure) return false;
       if (status && s._st !== status) return false;
+      const sf = els.saeb.value;
+      if (sf === "sim" && !(s._saeb === "int" || s._saeb === "parc")) return false;
+      if (sf && sf !== "sim" && s._saeb !== sf) return false;
       if (!q) return true;
       if (digits) return String(s.cie) === raw || s.inep === raw || s.inep.startsWith(raw) || String(s.cie).startsWith(raw);
       return q.split(/\s+/).every((w) => s._k.includes(w));
@@ -74,6 +103,7 @@
         <span class="name">${esc(s.nome)}</span>
         ${badge(s)}
         <span class="meta">CIE ${s.cie} · INEP ${s.inep} · URE ${esc(s.ure)}</span>
+        ${pills(s)}
       </button></li>`).join(""));
     shown += slice.length;
     els.more.hidden = shown >= n;
@@ -91,6 +121,31 @@
     if (icm >= 0.5) return "Componente no teto (Ouro).";
     if (icm === 0) return "Nota não superou a linha de base nem atingiu o piso de qualidade (IQ).";
     return "Evolução parcial em direção à meta Ouro.";
+  }
+
+  function saebBox(s) {
+    const k = s._saeb;
+    if (k === "na") {
+      return `<div class="saeb-box na"><span class="saeb-q">Bônus SAEB?</span><b>Não se aplica</b>
+        <p>Escola fora do universo do SAEB: o resultado vem só do SARESP/Provão Paulista, que pode chegar a 1,00 sozinho.</p></div>`;
+    }
+    const gates = [{ name: "frequência (IFA)", ok: s.ifaOk }, { name: "participação no SAEB (TPS)", ok: s.tpsSaebOk }];
+    const failed = gates.filter((g) => !g.ok).map((g) => g.name);
+    let title;
+    let text;
+    if (k === "int") {
+      title = "SIM — integral";
+      text = `ICM‑SAEB <strong>0,50 de 0,50</strong> (100% da parcela SAEB).`;
+    } else if (k === "parc") {
+      title = "SIM — parcial";
+      text = `ICM‑SAEB <strong>${fmt(s.icmSaeb)} de 0,50</strong> (${pctOf(s.icmSaeb, 0.5)}% da parcela SAEB).`;
+    } else {
+      title = "NÃO";
+      text = failed.length
+        ? `${failed.length > 1 ? "Gatilhos" : "Gatilho"} de ${failed.join(" e de ")} não ${failed.length > 1 ? "cumpridos" : "cumprido"}, o que zera a parcela SAEB${s.icSaeb > 0 ? ` (sem isso, seria ${fmt(Math.min(s.icSaeb, 0.5))})` : ""}.`
+        : `A nota SAEB 2025 (${fmt(s.nfSaeb)}) não superou a linha de base de 2023 (${fmt(s.nfSaeb23)}) nem atingiu o piso de qualidade (${fmt(s.iqSaeb)}).`;
+    }
+    return `<div class="saeb-box ${k}"><span class="saeb-q">A escola recebe o bônus SAEB?</span><b>${title}</b><p>${text}</p></div>`;
   }
 
   function detail(s) {
@@ -114,6 +169,7 @@
         </div>
         ${badge(s)}
       </div>
+      ${saebBox(s)}
       <div class="verdict ${st}">${msg}</div>`;
 
     if (s.base === "SARESP/SAEB") {
@@ -187,6 +243,7 @@
   els.q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(apply, 120); });
   els.ure.addEventListener("change", apply);
   els.sort.addEventListener("change", apply);
+  els.saeb.addEventListener("change", apply);
   chips.forEach((c) => c.addEventListener("click", () => {
     status = c.dataset.st;
     chips.forEach((x) => { x.classList.toggle("on", x === c); x.setAttribute("aria-checked", x === c); });
@@ -201,6 +258,7 @@
     ures = u;
     schools.forEach((s) => {
       s._st = statusOf(s.icm);
+      s._saeb = saebOf(s);
       s._k = fold(s.nome);
     });
     const names = [...new Set(schools.map((s) => s.ure))].sort((a, b) => a.localeCompare(b, "pt-BR"));

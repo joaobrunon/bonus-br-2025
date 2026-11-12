@@ -66,8 +66,31 @@ h1 { margin: 4px 0 6px; font-size: clamp(24px, 5vw, 32px); line-height: 1.2; }
   background: var(--surface); color: var(--ink);
 }
 .search input:focus, select:focus, .chip:focus-visible, .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
-@media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+.row { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr; gap: 10px; }
+@media (max-width: 640px) { .row { grid-template-columns: 1fr 1fr; } .row > :first-child { grid-column: 1 / -1; } }
+.chips-label { font-size: 13px; color: var(--muted); align-self: center; }
+.stats-sub { grid-column: 1 / -1; margin: 6px 0 -4px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.stats-sub.first { margin-top: 0; }
+.stat.saeb b, .stat.saeb-int b { color: var(--diam); }
+.stat.saeb-no b { color: var(--zero); }
+.stat.saeb { outline: 2px solid var(--diam); outline-offset: -2px; }
+
+.pills { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pill { font-size: 13px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+.pill:first-child { font-size: 14px; padding: 4px 10px; }
+.pill.yes { background: var(--diam-bg); color: var(--diam); }
+.pill.part { background: var(--parc-bg); color: var(--parc); }
+.pill.no { background: var(--zero-bg); color: var(--zero); }
+.pill.na { background: var(--bar); color: var(--muted); }
+
+.saeb-box { margin: 16px 0 0; padding: 14px 16px; border-radius: var(--radius); border: 2px solid; }
+.saeb-box .saeb-q { display: block; font-size: 13px; font-weight: 600; opacity: .85; }
+.saeb-box b { display: block; font-size: 24px; line-height: 1.2; margin: 2px 0 4px; }
+.saeb-box p { margin: 0; font-size: 14px; color: var(--ink); }
+.saeb-box.int { border-color: var(--diam); background: var(--diam-bg); color: var(--diam); }
+.saeb-box.parc { border-color: var(--parc); background: var(--parc-bg); color: var(--parc); }
+.saeb-box.nao { border-color: var(--zero); background: var(--zero-bg); color: var(--zero); }
+.saeb-box.na { border-color: var(--line); background: var(--bg); color: var(--muted); }
 .sel { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
 select {
   font: inherit; color: var(--ink); background: var(--surface);
