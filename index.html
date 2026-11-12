@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta Bônus BR 2025</title>
+<meta name="description" content="Consulte o ICM de cada escola estadual de SP na Bonificação por Resultados 2025 (Resolução SEDUC nº 106/2026).">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Bonificação por Resultados · exercício 2025</p>
+    <h1>Consulta do bônus por escola</h1>
+    <p class="lede">ICM final de cada unidade (SARESP/Provão Paulista + SAEB), conforme a
+      <strong>Resolução SEDUC nº 106, de 11/11/2026</strong> (DOE de 12/11/2026).</p>
+    <div class="stats" id="stats" aria-live="polite"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="controls" aria-label="Filtros">
+    <label class="search">
+      <span class="sr">Buscar escola</span>
+      <input id="q" type="search" placeholder="Nome da escola, código CIE ou INEP" autocomplete="off" autofocus>
+    </label>
+    <div class="row">
+      <label class="sel">
+        <span>URE</span>
+        <select id="ure"><option value="">Todas as UREs</option></select>
+      </label>
+      <label class="sel">
+        <span>Ordenar</span>
+        <select id="sort">
+          <option value="nome">Nome (A–Z)</option>
+          <option value="icm-desc">Maior ICM</option>
+          <option value="icm-asc">Menor ICM</option>
+        </select>
+      </label>
+    </div>
+    <div class="chips" role="radiogroup" aria-label="Situação">
+      <button class="chip on" data-st="" role="radio" aria-checked="true">Todas</button>
+      <button class="chip" data-st="diam" role="radio" aria-checked="false"><i class="dot diam"></i>Diamante (100%)</button>
+      <button class="chip" data-st="parc" role="radio" aria-checked="false"><i class="dot parc"></i>Parcial</button>
+      <button class="chip" data-st="zero" role="radio" aria-checked="false"><i class="dot zero"></i>Não atingiu</button>
+    </div>
+  </section>
+
+  <p class="count" id="count" aria-live="polite">Carregando dados…</p>
+  <ul class="list" id="list"></ul>
+  <button class="more" id="more" hidden>Mostrar mais</button>
+
+  <section class="notes">
+    <h2>Como ler</h2>
+    <ul>
+      <li><strong>ICM da escola</strong> = ICM‑SARESP/Provão (até 0,50) + ICM‑SAEB (até 0,50). Com 1,00 a escola fica no patamar <strong>Diamante</strong>.</li>
+      <li>Em cada avaliação vale o maior entre o Índice de Cumprimento (IC, evolução até a meta Ouro) e o Índice de Qualidade (IQ, nota acima do piso). Esse valor só conta se os <strong>gatilhos</strong> forem cumpridos: frequência (IFA) e participação (TPS ≥ 80%). Sem gatilho, o componente é zerado.</li>
+      <li>33 escolas sem universo SAEB são apuradas só pelo SARESP, com metas Ouro e Diamante próprias.</li>
+      <li>CEEJA, escolas indígenas, quilombolas e vinculadas não têm meta própria e recebem o ICM da URE ou da escola vinculadora; elas não aparecem nesta lista. Consulte o ICM da URE no detalhe de qualquer escola da mesma região.</li>
+    </ul>
+    <p class="disclaimer">Página não oficial, gerada a partir do Anexo Escola da resolução publicada no Diário Oficial. Em caso de divergência vale o texto oficial (<a href="https://www.doe.sp.gov.br/" rel="noopener">doe.sp.gov.br</a>) e a SED &gt; Recursos Humanos &gt; Bonificação por Resultados.</p>
+  </section>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <div class="dlg-body" id="dlg-body"></div>
+  <form method="dialog"><button class="close" aria-label="Fechar">×</button></form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
